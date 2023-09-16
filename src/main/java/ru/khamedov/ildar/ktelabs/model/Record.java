@@ -26,8 +26,10 @@ public class Record extends AbstractPersistable<Long> {
     private Date date;
 
     @Temporal(TemporalType.TIME)
-    private Date utilTime;
+    private Date time;
 
     private Duration duration;
+
+    private boolean confirmed;
 
 }

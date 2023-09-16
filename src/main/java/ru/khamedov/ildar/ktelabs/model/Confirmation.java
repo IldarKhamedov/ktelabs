@@ -16,7 +16,8 @@ public class Confirmation extends AbstractPersistable<Long> {
     @Basic(optional = false)
     private String phone;
 
+    @Basic(optional = false)
     private String code;
 
-    private boolean confirmed;
+
 }

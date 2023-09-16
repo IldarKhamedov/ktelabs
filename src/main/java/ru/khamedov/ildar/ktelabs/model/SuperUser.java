@@ -20,9 +20,6 @@ public abstract class SuperUser extends AbstractPersistable<Long> {
     private String uuid=UUID.randomUUID().toString();
 
     @Basic(optional = false)
-    private String password;
-
-    @Basic(optional = false)
     private String firstName;
 
     @Basic(optional = false)

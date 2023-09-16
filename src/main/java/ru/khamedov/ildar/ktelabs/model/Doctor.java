@@ -1,5 +1,7 @@
 package ru.khamedov.ildar.ktelabs.model;
 
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import lombok.Getter;
@@ -14,6 +16,12 @@ import java.util.List;
 @Getter
 @Setter
 public class Doctor extends SuperUser{
+
+    @Column(nullable = false,unique = true)
+    private String login;
+
+    @Basic(optional = false)
+    private String password;
 
     @ManyToMany
     private List<Post> postList=new ArrayList<>();
