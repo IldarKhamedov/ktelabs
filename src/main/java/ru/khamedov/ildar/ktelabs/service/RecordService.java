@@ -1,12 +1,18 @@
 package ru.khamedov.ildar.ktelabs.service;
 
+
+import https.ktelabs.web_service.shedule.rules.CreateRecordRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
+import ru.khamedov.ildar.ktelabs.exception.ExistsRecordException;
+import ru.khamedov.ildar.ktelabs.exception.IncompleteRequestException;
 import ru.khamedov.ildar.ktelabs.model.Doctor;
 import ru.khamedov.ildar.ktelabs.model.Record;
 import ru.khamedov.ildar.ktelabs.repository.RecordRepository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 
@@ -16,16 +22,26 @@ import java.util.Date;
  */
 public class RecordService {
 
+    private static final String EMPTY_DATE="Заполните дату";
+    private static final String EMPTY_TIME="Заполните время";
+    private static final String EMPTY_DURATION="Заполните продолжительность";
+
     @Resource
     private AuthService authService;
 
     @Resource
-    private RecordRepository repository;
+    private RecordRepository recordRepository;
 
-    public boolean createSlots(Date date, Date time, Duration duration,int count){
+    private static final String ERROR_MESSAGE="Запись уже существует: ";
+
+    public boolean createSlots(Date date, Date time, Duration duration,int count) throws ParseException {
         Doctor doctor=authService.getUser();
         for(int i=1; i <= count; i++){
-            repository.save(createRecord(doctor,date,time,duration));
+            if(recordRepository.existsByDateAndTime(date,time)){
+                existsRecordError(date,time);
+            }
+            Record record=createRecord(doctor,date,time,duration);
+            recordRepository.save(record);
             time= DateUtils.addMinutes(time,duration.toMinutesPart());
         }
         return true;
@@ -38,5 +54,28 @@ public class RecordService {
         record.setTime(time);
         record.setDuration(duration);
         return record;
+    }
+
+    public boolean checkRequest(CreateRecordRequest createRecordRequest){
+        return createRecordRequest.getDate()!=null && createRecordRequest.getStartTime()!=null && createRecordRequest.getDuration()!=null;
+    }
+
+    public void emptyRequestError(CreateRecordRequest createRecordRequest){
+        String message="";
+        if(createRecordRequest.getDate()==null){
+            message=message+EMPTY_DATE;
+        }
+        if(createRecordRequest.getStartTime()==null){
+            message=message+"; "+EMPTY_TIME;
+        }
+        if(createRecordRequest.getDuration()==null){
+            message=message+"; "+EMPTY_DURATION;
+        }
+        throw new IncompleteRequestException(message);
+    }
+    private void existsRecordError(Date date, Date time){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat timeFormat = new SimpleDateFormat(" HH:mm");
+        throw new ExistsRecordException(ERROR_MESSAGE+dateFormat.format(date)+", "+timeFormat.format(time));
     }
 }

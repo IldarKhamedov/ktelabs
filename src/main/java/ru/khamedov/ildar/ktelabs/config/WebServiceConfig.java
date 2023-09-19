@@ -7,11 +7,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
+import org.springframework.ws.soap.server.endpoint.SoapFaultDefinition;
+import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
 import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
+import ru.khamedov.ildar.ktelabs.exception.ExistsRecordException;
+import ru.khamedov.ildar.ktelabs.exception.IncompleteRequestException;
 import ru.khamedov.ildar.ktelabs.util.Constant;
+
+import java.util.Properties;
 
 @EnableWs
 @Configuration
@@ -46,5 +52,22 @@ public class WebServiceConfig extends WsConfigurerAdapter {
     @Bean
     public XsdSchema countriesSchema() {
         return new SimpleXsdSchema(new ClassPathResource(CLASS_PATH_RESOURCE));
+    }
+
+    @Bean
+    public SoapFaultMappingExceptionResolver exceptionResolver() {
+        SoapFaultMappingExceptionResolver exceptionResolver = new SoapFaultMappingExceptionResolver();
+
+        SoapFaultDefinition faultDefinition = new SoapFaultDefinition();
+        faultDefinition.setFaultCode(SoapFaultDefinition.SERVER);
+        exceptionResolver.setDefaultFault(faultDefinition);
+
+        Properties errorMappings = new Properties();
+        errorMappings.setProperty(Exception.class.getName(), SoapFaultDefinition.SERVER.toString());
+        errorMappings.setProperty(IncompleteRequestException.class.getName(), SoapFaultDefinition.CLIENT.toString());
+        errorMappings.setProperty(ExistsRecordException.class.getName(), SoapFaultDefinition.CLIENT.toString());
+        exceptionResolver.setExceptionMappings(errorMappings);
+        exceptionResolver.setOrder(1);
+        return exceptionResolver;
     }
 }
