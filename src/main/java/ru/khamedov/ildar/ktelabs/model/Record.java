@@ -14,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"doctor_id","date","time"})})
 public class Record extends AbstractPersistable<Long> {
 
     @ManyToOne(optional = false)
@@ -23,11 +24,14 @@ public class Record extends AbstractPersistable<Long> {
     private Patient patient;
 
     @Temporal(TemporalType.DATE)
+    @Basic(optional = false)
     private Date date;
 
     @Temporal(TemporalType.TIME)
+    @Basic(optional = false)
     private Date time;
 
+    @Basic(optional = false)
     private Duration duration;
 
     private boolean confirmed;

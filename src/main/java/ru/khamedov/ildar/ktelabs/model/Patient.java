@@ -15,7 +15,7 @@ import java.util.Date;
 @Setter
 public class Patient extends SuperUser {
 
-    private boolean exists;
+    private boolean confirmed;
 
     @Temporal(TemporalType.DATE)
     private Date birthday;

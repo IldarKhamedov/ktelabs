@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://kteLabs/web-service/shedule/rules"
+           targetNamespace="https://kteLabs/web-service/shedule/rules" elementFormDefault="qualified">
+
+    <xs:element name="createRecordRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="date" type="xs:date"/>
+                <xs:element name="startTime" type="xs:dateTime"/>
+                <xs:element name="duration" type="xs:duration"/>
+                <xs:element name="count" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="createRecordResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="confirmation" type="xs:boolean"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

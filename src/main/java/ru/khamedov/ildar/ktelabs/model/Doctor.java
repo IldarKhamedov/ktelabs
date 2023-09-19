@@ -23,6 +23,8 @@ public class Doctor extends SuperUser{
     @Basic(optional = false)
     private String password;
 
+    private boolean blocked;
+
     @ManyToMany
     private List<Post> postList=new ArrayList<>();
 }
