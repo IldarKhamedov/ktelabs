@@ -5,6 +5,7 @@ import https.ktelabs.web_service.shedule.rules.CreateRecordRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
+import ru.khamedov.ildar.ktelabs.dto.RecordDTO;
 import ru.khamedov.ildar.ktelabs.exception.ExistsRecordException;
 import ru.khamedov.ildar.ktelabs.exception.IncompleteRequestException;
 import ru.khamedov.ildar.ktelabs.model.Doctor;
@@ -15,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -31,6 +34,9 @@ public class RecordService {
 
     @Resource
     private RecordRepository recordRepository;
+
+    @Resource
+    private ModelMapperService modelMapperService;
 
     private static final String ERROR_MESSAGE="Запись уже существует: ";
 
@@ -77,5 +83,10 @@ public class RecordService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat timeFormat = new SimpleDateFormat(" HH:mm");
         throw new ExistsRecordException(ERROR_MESSAGE+dateFormat.format(date)+", "+timeFormat.format(time));
+    }
+
+    public List<RecordDTO> getRecordDTOList(Long doctorId,Date date){
+        List<Record> recordList=recordRepository.findByDoctorAndDate(doctorId,date);
+        return recordList.stream().map(r -> modelMapperService.convertToRecordDTO(r)).collect(Collectors.toList());
     }
 }
