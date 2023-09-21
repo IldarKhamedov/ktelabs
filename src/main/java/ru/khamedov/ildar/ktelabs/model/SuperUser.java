@@ -22,7 +22,6 @@ public abstract class SuperUser extends AbstractPersistable<Long> {
     @Basic(optional = false)
     private String firstName;
 
-    @Basic(optional = false)
     private String middleName;
 
     @Basic(optional = false)

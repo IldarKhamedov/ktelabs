@@ -22,7 +22,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/api/**")).hasAnyAuthority(Constant.AUTHORITY_ROLE)
+                        .requestMatchers(new AntPathRequestMatcher("/api/personal/**")).hasAnyAuthority(Constant.AUTHORITY_ROLE)
                         .requestMatchers(new AntPathRequestMatcher("/ws/**","POST")).hasAnyAuthority(Constant.AUTHORITY_ROLE)
                         .requestMatchers(new AntPathRequestMatcher("/ws/**","GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll()

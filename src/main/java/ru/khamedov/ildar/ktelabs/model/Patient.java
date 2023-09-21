@@ -1,13 +1,13 @@
 package ru.khamedov.ildar.ktelabs.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -15,10 +15,12 @@ import java.util.Date;
 @Setter
 public class Patient extends SuperUser {
 
-    private boolean confirmed;
-
     @Temporal(TemporalType.DATE)
     private Date birthday;
 
     private Double discount;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false,name = "patient_id")
+    private Set<Contact> contactSet =new HashSet<>();
 }

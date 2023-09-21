@@ -12,6 +12,8 @@ import java.util.Date;
 @Setter
 public class RecordDTO {
 
+    private Long id;
+
     private Date time;
 
     private Duration duration;

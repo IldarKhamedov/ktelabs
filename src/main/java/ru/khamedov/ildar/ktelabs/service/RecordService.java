@@ -5,11 +5,15 @@ import https.ktelabs.web_service.shedule.rules.CreateRecordRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
+import ru.khamedov.ildar.ktelabs.dto.PatientRecordDTO;
 import ru.khamedov.ildar.ktelabs.dto.RecordDTO;
 import ru.khamedov.ildar.ktelabs.exception.ExistsRecordException;
 import ru.khamedov.ildar.ktelabs.exception.IncompleteRequestException;
 import ru.khamedov.ildar.ktelabs.model.Doctor;
+import ru.khamedov.ildar.ktelabs.model.Patient;
 import ru.khamedov.ildar.ktelabs.model.Record;
+import ru.khamedov.ildar.ktelabs.repository.ConfirmationRepository;
+import ru.khamedov.ildar.ktelabs.repository.PatientRepository;
 import ru.khamedov.ildar.ktelabs.repository.RecordRepository;
 
 import java.text.ParseException;
@@ -25,9 +29,9 @@ import java.util.stream.Collectors;
  */
 public class RecordService {
 
-    private static final String EMPTY_DATE="Заполните дату";
-    private static final String EMPTY_TIME="Заполните время";
-    private static final String EMPTY_DURATION="Заполните продолжительность";
+    private static final String EMPTY_DATE = "Заполните дату";
+    private static final String EMPTY_TIME = "Заполните время";
+    private static final String EMPTY_DURATION = "Заполните продолжительность";
 
     @Resource
     private AuthService authService;
@@ -38,23 +42,33 @@ public class RecordService {
     @Resource
     private ModelMapperService modelMapperService;
 
-    private static final String ERROR_MESSAGE="Запись уже существует: ";
+    @Resource
+    private ConfirmationRepository confirmationRepository;
 
-    public boolean createSlots(Date date, Date time, Duration duration,int count) throws ParseException {
-        Doctor doctor=authService.getUser();
-        for(int i=1; i <= count; i++){
-            if(recordRepository.existsByDateAndTime(date,time)){
-                existsRecordError(date,time);
+    @Resource
+    private PatientRepository patientRepository;
+
+    @Resource
+    private PatientService patientService;
+
+    private static final String ERROR_MESSAGE = "Запись уже существует: ";
+
+    public boolean createSlots(Date date, Date time, Duration duration, int count) throws ParseException {
+        Doctor doctor = authService.getUser();
+        for (int i = 1; i <= count; i++) {
+            if (recordRepository.existsByDateAndTime(date, time)) {
+                existsRecordError(date, time);
             }
-            Record record=createRecord(doctor,date,time,duration);
+            Record record = createRecord(doctor, date, time, duration);
             recordRepository.save(record);
-            time= DateUtils.addMinutes(time,duration.toMinutesPart());
+            time = DateUtils.addMinutes(time, duration.toMinutesPart());
         }
         return true;
 
     }
-    private Record createRecord(Doctor doctor, Date date, Date time, Duration duration){
-        Record record=new Record();
+
+    private Record createRecord(Doctor doctor, Date date, Date time, Duration duration) {
+        Record record = new Record();
         record.setDoctor(doctor);
         record.setDate(date);
         record.setTime(time);
@@ -62,31 +76,49 @@ public class RecordService {
         return record;
     }
 
-    public boolean checkRequest(CreateRecordRequest createRecordRequest){
-        return createRecordRequest.getDate()!=null && createRecordRequest.getStartTime()!=null && createRecordRequest.getDuration()!=null;
+    public boolean checkRequest(CreateRecordRequest createRecordRequest) {
+        return createRecordRequest.getDate() != null && createRecordRequest.getStartTime() != null && createRecordRequest.getDuration() != null;
     }
 
-    public void emptyRequestError(CreateRecordRequest createRecordRequest){
-        String message="";
-        if(createRecordRequest.getDate()==null){
-            message=message+EMPTY_DATE;
+    public void emptyRequestError(CreateRecordRequest createRecordRequest) {
+        String message = "";
+        if (createRecordRequest.getDate() == null) {
+            message = message + EMPTY_DATE;
         }
-        if(createRecordRequest.getStartTime()==null){
-            message=message+"; "+EMPTY_TIME;
+        if (createRecordRequest.getStartTime() == null) {
+            message = message + "; " + EMPTY_TIME;
         }
-        if(createRecordRequest.getDuration()==null){
-            message=message+"; "+EMPTY_DURATION;
+        if (createRecordRequest.getDuration() == null) {
+            message = message + "; " + EMPTY_DURATION;
         }
         throw new IncompleteRequestException(message);
     }
-    private void existsRecordError(Date date, Date time){
+
+    private void existsRecordError(Date date, Date time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat timeFormat = new SimpleDateFormat(" HH:mm");
-        throw new ExistsRecordException(ERROR_MESSAGE+dateFormat.format(date)+", "+timeFormat.format(time));
+        throw new ExistsRecordException(ERROR_MESSAGE + dateFormat.format(date) + ", " + timeFormat.format(time));
     }
 
-    public List<RecordDTO> getRecordDTOList(Long doctorId,Date date){
-        List<Record> recordList=recordRepository.findByDoctorAndDate(doctorId,date);
+    public List<RecordDTO> getRecordDTOList(Long doctorId, Date date) {
+        List<Record> recordList = recordRepository.findByDoctorAndDate(doctorId, date);
         return recordList.stream().map(r -> modelMapperService.convertToRecordDTO(r)).collect(Collectors.toList());
     }
+
+    public boolean fillRecord(PatientRecordDTO fillRecordDTO) {
+        if (!confirmationRepository.checkByContactAndCode(fillRecordDTO.getContact(),
+                fillRecordDTO.getCode())) {
+            return false;
+        }
+        Record record = recordRepository.findById(fillRecordDTO.getRecordId()).get();
+        if (record == null || (record != null && record.getPatient() != null)) {
+            return false;
+        }
+        Patient patient = patientService.createPatient(fillRecordDTO);
+        record.setPatient(patient);
+        recordRepository.save(record);
+        return true;
+    }
+
+
 }
