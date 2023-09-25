@@ -15,7 +15,11 @@ import java.util.Date;
 @Getter
 @Setter
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"doctor_id","date","time"})})
-public class Record extends AbstractPersistable<Long> {
+public class Record  {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(optional = false)
     private Doctor doctor;

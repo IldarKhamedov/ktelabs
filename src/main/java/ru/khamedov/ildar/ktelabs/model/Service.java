@@ -1,7 +1,6 @@
 package ru.khamedov.ildar.ktelabs.model;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,11 @@ import java.time.Duration;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Service extends AbstractPersistable<Long> {
+public class Service  {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private int price;
 

@@ -1,15 +1,17 @@
 package ru.khamedov.ildar.ktelabs.model;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
 @Getter
 @Setter
-public abstract class Contact extends AbstractPersistable<Long> {
+public abstract class Contact {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Basic(optional = false)
     private String contact;

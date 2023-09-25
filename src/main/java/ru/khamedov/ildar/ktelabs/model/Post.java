@@ -1,8 +1,6 @@
 package ru.khamedov.ildar.ktelabs.model;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Post extends AbstractPersistable<Long> {
+public class Post {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Basic(optional = false)
     private String name;

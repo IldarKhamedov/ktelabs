@@ -1,6 +1,3 @@
-
-create sequence <schema>.hibernate_sequence;
-
 CREATE TABLE confirmation (
 	id int8 NOT NULL,
 	code varchar(255) NOT NULL,
@@ -91,3 +88,9 @@ CREATE TABLE doctor_post_list (
 ALTER TABLE doctor_post_list ADD CONSTRAINT fk23sqp2ye2f8ul4gq1bucq1jnm FOREIGN KEY (doctor_id) REFERENCES doctor(id);
 ALTER TABLE doctor_post_list ADD CONSTRAINT fksouuiqllu3roqp5ypesaot97q FOREIGN KEY (post_list_id) REFERENCES post(id);
 
+CREATE SEQUENCE hibernate_sequence
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;

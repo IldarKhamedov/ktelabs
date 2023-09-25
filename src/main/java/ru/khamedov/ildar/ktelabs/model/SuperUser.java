@@ -14,7 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public abstract class SuperUser extends AbstractPersistable<Long> {
+public abstract class SuperUser  {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Basic(optional = false)
     private String uuid=UUID.randomUUID().toString();
