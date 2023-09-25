@@ -2,7 +2,7 @@ package ru.khamedov.ildar.ktelabs.service;
 
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import ru.khamedov.ildar.ktelabs.dto.PatientRecordDTO;
+import ru.khamedov.ildar.ktelabs.dto.PatientDTO;
 import ru.khamedov.ildar.ktelabs.model.Contact;
 import ru.khamedov.ildar.ktelabs.model.Patient;
 import ru.khamedov.ildar.ktelabs.model.Phone;
@@ -18,17 +18,23 @@ public class PatientService {
     private PatientRepository patientRepository;
     @Resource
     private ModelMapperService modelMapperService;
+    @Resource
+    private ConfirmationService confirmationService;
 
 
-    public Patient createPatient(PatientRecordDTO fillRecordDTO) {
-        Patient patient = patientRepository.findByContact(fillRecordDTO.getContact());
-        if (patient == null) {
-            patient = modelMapperService.convertToPatient(fillRecordDTO);
+    public boolean createPatient(PatientDTO patientDTO) {
+        if(!confirmationService.checkCode(patientDTO.getContact(), patientDTO.getCode()) || disallowPatientByContact(patientDTO.getContact()) ){
+            return false;
+        }
+            Patient patient = modelMapperService.convertToPatient(patientDTO);
             Contact contact = new Phone();
-            contact.setContact(fillRecordDTO.getContact());
+            contact.setContact(patientDTO.getContact());
             patient.getContactSet().add(contact);
             patientRepository.save(patient);
-        }
-        return patient;
+        return true;
+    }
+
+    private boolean disallowPatientByContact(String contact){
+        return patientRepository.findByContact(contact) != null;
     }
 }

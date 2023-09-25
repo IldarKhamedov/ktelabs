@@ -3,6 +3,7 @@ package ru.khamedov.ildar.ktelabs.controller;
 import jakarta.annotation.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import ru.khamedov.ildar.ktelabs.dto.PatientDTO;
 import ru.khamedov.ildar.ktelabs.dto.PatientRecordDTO;
 import ru.khamedov.ildar.ktelabs.dto.RecordDTO;
 import ru.khamedov.ildar.ktelabs.service.PatientService;
@@ -29,8 +30,18 @@ public class ClientRestController {
     }
 
     @PostMapping("/client/record/fill")
-    public ResponseEntity fillRecord(@RequestBody PatientRecordDTO fillRecordDTO){
-        return new ResponseEntity(recordService.fillRecord(fillRecordDTO),HttpStatus.OK);
+    public ResponseEntity fillRecord(@RequestBody PatientRecordDTO patientRecordDTO){
+        return new ResponseEntity(recordService.fillRecord(patientRecordDTO),HttpStatus.OK);
+    }
+
+    @GetMapping("/client/records/busy/{id}")
+    public ResponseEntity getBusyRecords(@PathVariable(required = true) String id){
+        return new ResponseEntity(recordService.getBusyRecords(id),HttpStatus.OK);
+    }
+
+    @PostMapping("/client/create")
+    public ResponseEntity createPatient(@RequestBody PatientDTO patientDTO){
+        return new ResponseEntity(patientService.createPatient(patientDTO),HttpStatus.OK);
     }
 
 }

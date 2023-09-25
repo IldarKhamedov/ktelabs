@@ -14,6 +14,8 @@ public class RecordDTO {
 
     private Long id;
 
+    private Date date;
+
     private Date time;
 
     private Duration duration;

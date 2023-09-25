@@ -12,7 +12,6 @@ import ru.khamedov.ildar.ktelabs.exception.IncompleteRequestException;
 import ru.khamedov.ildar.ktelabs.model.Doctor;
 import ru.khamedov.ildar.ktelabs.model.Patient;
 import ru.khamedov.ildar.ktelabs.model.Record;
-import ru.khamedov.ildar.ktelabs.repository.ConfirmationRepository;
 import ru.khamedov.ildar.ktelabs.repository.PatientRepository;
 import ru.khamedov.ildar.ktelabs.repository.RecordRepository;
 
@@ -43,13 +42,14 @@ public class RecordService {
     private ModelMapperService modelMapperService;
 
     @Resource
-    private ConfirmationRepository confirmationRepository;
-
-    @Resource
     private PatientRepository patientRepository;
 
     @Resource
+    private ConfirmationService confirmationService;
+
+    @Resource
     private PatientService patientService;
+
 
     private static final String ERROR_MESSAGE = "Запись уже существует: ";
 
@@ -105,20 +105,31 @@ public class RecordService {
         return recordList.stream().map(r -> modelMapperService.convertToRecordDTO(r)).collect(Collectors.toList());
     }
 
-    public boolean fillRecord(PatientRecordDTO fillRecordDTO) {
-        if (!confirmationRepository.checkByContactAndCode(fillRecordDTO.getContact(),
-                fillRecordDTO.getCode())) {
+    public boolean fillRecord(PatientRecordDTO patientRecordDTO) {
+        if (!confirmationService.checkCode(patientRecordDTO.getContact(),
+                patientRecordDTO.getCode())) {
             return false;
         }
-        Record record = recordRepository.findById(fillRecordDTO.getRecordId()).get();
+        Record record = recordRepository.findById(patientRecordDTO.getRecordId()).get();
         if (record == null || (record != null && record.getPatient() != null)) {
             return false;
         }
-        Patient patient = patientService.createPatient(fillRecordDTO);
+        Patient patient =patientRepository.findByContact(patientRecordDTO.getContact());
+        if(patient==null){
+            return false;
+        }
         record.setPatient(patient);
         recordRepository.save(record);
         return true;
     }
-
-
+    public List<RecordDTO> getBusyRecords(String id){
+        List<Record> recordList=null;
+        try {
+           Long idParse =Long.parseLong(id);
+           recordList=recordRepository.findByID(idParse);
+        }catch (NumberFormatException e) {
+            recordList = recordRepository.findByUUID(id);
+        }
+        return recordList.stream().map(r->modelMapperService.convertToRecordDTO(r)).collect(Collectors.toList());
+    }
 }

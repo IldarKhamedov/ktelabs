@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.khamedov.ildar.ktelabs.model.Doctor;
 import ru.khamedov.ildar.ktelabs.model.Record;
 
 import java.util.Date;
@@ -23,4 +22,10 @@ public interface RecordRepository extends JpaRepository<Record,Long> {
 
     @Query("SELECT r FROM Record r WHERE r.doctor.id=:doctorId AND r.date=:date AND r.patient IS NULL")
     List<Record> findByDoctorAndDate(@Param("doctorId") Long doctorId, @Param("date") Date date);
+
+    @Query("SELECT r FROM Record r WHERE r.patient.id=:id")
+    List<Record> findByID(@Param("id") Long id);
+
+    @Query("SELECT r FROM Record r WHERE r.patient.uuid=:id")
+    List<Record> findByUUID(@Param("id") String id);
 }
